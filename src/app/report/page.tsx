@@ -8,7 +8,7 @@ import {
   useJsApiLoader,
   Libraries,
 } from "@react-google-maps/api";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import {
   createReport,
@@ -24,7 +24,7 @@ const libraries: Libraries = ["places"];
 
 export default function ReportPage() {
   const [user, setUser] = useState("") as any;
-  const router = useRouter();
+  // const window.location = usewindow.location();
   const [reports, setReports] = useState<
     Array<{
       id: number;
@@ -234,11 +234,12 @@ export default function ReportPage() {
         }));
         setReports(formattedReports);
       } else {
-        router.push("/login");
+        window.location.href = "/";
+        toast.error("Please login");
       }
     };
     checkUser();
-  }, [router]);
+  }, []);
   return (
     <div className="p-8 max-w-4xl mx-auto text-gray-800">
       <h1 className="text-3xl font-semibold mb-6 text-gray-800">

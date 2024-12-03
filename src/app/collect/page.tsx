@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 import {
-  getWasteCollectionTasks,
+  getWasteCollectionTask,
   updateTaskStatus,
   saveReward,
   saveCollectedWaste,
@@ -33,7 +33,7 @@ type CollectionTask = {
   wasteType: string;
   amount: string;
   status: "pending" | "in_progress" | "completed" | "verified";
-  data: string;
+  date: string;
   collectorId: number | null;
 };
 
@@ -71,7 +71,7 @@ export default function CollectPage() {
         }
 
         // Fetch tasks
-        const fetchedTasks = await getWasteCollectionTasks();
+        const fetchedTasks = await getWasteCollectionTask();
         setTasks(fetchedTasks as CollectionTask[]);
       } catch (error) {
         console.error("Error fetching user and tasks:", error);
@@ -470,5 +470,25 @@ export default function CollectPage() {
         <p className="text-sm text-red-600 mb-4">Please log in to collect waste and earn rewards.</p>
       )} */}
     </div>
+  );
+}
+
+function StatusBadge({ status }: { status: CollectionTask["status"] }) {
+  const statusConfig = {
+    pending: { color: "bg-yellow-100 text-yellow-800", icon: Clock },
+    in_progress: { color: "bg-blue-100 text-blue-800", icon: Trash2 },
+    completed: { color: "bg-green-100 text-green-800", icon: CheckCircle },
+    verified: { color: "bg-purple-100 text-purple-800", icon: CheckCircle },
+  };
+
+  const { color, icon: Icon } = statusConfig[status];
+
+  return (
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-medium ${color} flex items-center`}
+    >
+      <Icon className="mr-1 h-3 w-3" />
+      {status.replace("_", " ")}
+    </span>
   );
 }

@@ -36,7 +36,8 @@ export const Rewards = pgTable("rewards", {
   userId: integer("user_id")
     .references(() => Users.id)
     .notNull(),
-  points: integer("point").notNull().default(0),
+  points: integer("points").notNull().default(0),
+  level: integer("level").notNull().default(1),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   isAvailable: boolean("is_available").notNull().default(true),
