@@ -142,7 +142,7 @@ export default function ReportPage() {
       {
         "wasteType": "type of waste,
         "quantity": "estimated quantity with unit",
-        "confidence": "confidence level as a number between 0 and 1"
+        "confidence": confidence level as a number between 0 and 1
       }
       
       `;
@@ -150,9 +150,10 @@ export default function ReportPage() {
       const result = await model.generateContent([prompt, ...imageParts]);
       const response = await result.response;
       const text = response.text();
+      const cleanedText = text.replace(/```json|```/g, "").trim();
 
       try {
-        const parseResult = JSON.parse(text);
+        const parseResult = JSON.parse(cleanedText);
         if (
           parseResult.wasteType &&
           parseResult.quantity &&
