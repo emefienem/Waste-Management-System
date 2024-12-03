@@ -201,3 +201,63 @@ export async function createNotification(
     console.error("Error creating notifications", error);
   }
 }
+
+export async function getRecentReports(limit: number = 10) {
+  try {
+    const reports = await db
+      .select()
+      .from(Reports)
+      .orderBy(desc(Reports.createdAt))
+      .limit(limit)
+      .execute();
+    return reports;
+  } catch (error) {
+    console.error("Error fetching recent report", error);
+    return [];
+  }
+}
+
+export async function getAvailableRewards(userId: number) {
+  try {
+    const userTransactions = await getRewardTransactions(userId);
+    const userPoints = userTransactions?.reduce(
+      (total: any, transaction: any) => {
+        return transaction.type.startsWith("earned")
+          ? total + transaction.amount
+          : total - transaction.amount;
+      },
+      0
+    );
+    const dbRewards = await db
+      .select({
+        id: Rewards.id,
+        name: Rewards.name,
+        cost: Rewards.points,
+        description: Rewards.description,
+        collectionInfo: Rewards.collectionInfo,
+      })
+      .from(Rewards)
+      .where(eq(Rewards.isAvailable, true))
+      .execute();
+
+    console.log("Rewards from database:", dbRewards);
+
+    // Combine user points and database rewards
+    const allRewards = [
+      {
+        id: 0, // Use a special ID for user's points
+        name: "Your Points",
+        cost: userPoints,
+        description: "Redeem your earned points",
+        collectionInfo: "Points earned from reporting and collecting waste",
+      },
+      ...dbRewards,
+    ];
+
+    console.log("All available rewards:", allRewards);
+    return allRewards;
+  } catch (error) {
+    console.error("Error fetching available rewards", error);
+    return [];
+  }
+}
