@@ -16,8 +16,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState<number>(0);
 
+  type RewardO = {
+    id: number;
+    name: string;
+    cost: number | undefined;
+    description: string | null;
+    collectionInfo: string;
+  };
+
+  type AvailableReward = RewardO[];
   useEffect(() => {
     const fetchTotalEarnings = async () => {
       try {
@@ -25,8 +34,12 @@ export default function RootLayout({
         if (userEmail) {
           const user = await getUserByEmail(userEmail);
           if (user) {
-            const availableResult = (await getAvailableRewards(user.id)) as any;
-            setTotalEarnings(availableResult);
+            const availableResult: AvailableReward = await getAvailableRewards(
+              user.id
+            );
+            const userPoints =
+              availableResult.find((reward) => reward.id === 0)?.cost || 0; // Extract points if available
+            setTotalEarnings(userPoints);
           }
         }
       } catch (error) {
@@ -36,6 +49,24 @@ export default function RootLayout({
 
     fetchTotalEarnings();
   }, []);
+  // useEffect(() => {
+  //   const fetchTotalEarnings = async () => {
+  //     try {
+  //       const userEmail = localStorage.getItem("userEmail");
+  //       if (userEmail) {
+  //         const user = await getUserByEmail(userEmail);
+  //         if (user) {
+  //           const availableResult = (await getAvailableRewards(user.id)) as any;
+  //           setTotalEarnings(availableResult);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching total earnings", error);
+  //     }
+  //   };
+
+  //   fetchTotalEarnings();
+  // }, []);
 
   return (
     <html lang="en">

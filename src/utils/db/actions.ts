@@ -58,11 +58,14 @@ export async function getUserBalance(userId: number): Promise<number> {
   const transactions = (await getRewardTransactions(userId)) || [];
 
   if (!transactions) return 0;
-  const balance = transactions.reduce((acc: number, transaction: any) => {
-    return transaction.type.startsWith("earned")
-      ? acc + transaction.amount
-      : acc - transaction.amount;
-  }, 0);
+  const balance = transactions.reduce(
+    (acc: number, transaction: { amount: number; type: string }) => {
+      return transaction.type.startsWith("earned")
+        ? acc + transaction.amount
+        : acc - transaction.amount;
+    },
+    0
+  );
   return Math.max(balance, 0);
 }
 
@@ -106,6 +109,13 @@ export async function markNotificationAsRead(notificationId: number) {
   }
 }
 
+interface Report3 {
+  id: number;
+  location: string;
+  wasteType: string;
+  amount: string;
+  createdAt: Date;
+}
 export async function createReport(
   userId: number,
   location: string,
@@ -113,8 +123,12 @@ export async function createReport(
   amount: string,
   imageUrl?: string,
   type?: string,
-  verificationResult?: any
-) {
+  verificationResult?: {
+    wasteType: string;
+    quantity: string;
+    confidence: number;
+  }
+): Promise<Report3 | null> {
   try {
     const [report] = await db
       .insert(Reports)
@@ -209,7 +223,19 @@ export async function createNotification(
   }
 }
 
-export async function getRecentReports(limit: number = 10) {
+interface Report2 {
+  id: number;
+  createdAt: Date; // assuming createdAt is a Date object
+  userId: number;
+  location: string;
+  wasteType: string;
+  amount: string;
+  imageUrl: string | null;
+  verificationResult?: unknown;
+  status: string;
+  collectorId: number | null;
+}
+export async function getRecentReports(limit: number = 10): Promise<Report2[]> {
   try {
     const reports = await db
       .select()
@@ -217,6 +243,7 @@ export async function getRecentReports(limit: number = 10) {
       .orderBy(desc(Reports.createdAt))
       .limit(limit)
       .execute();
+
     return reports;
   } catch (error) {
     console.error("Error fetching recent report", error);
@@ -224,17 +251,30 @@ export async function getRecentReports(limit: number = 10) {
   }
 }
 
-export async function getAvailableRewards(userId: number) {
+type RewardO = {
+  id: number;
+  name: string;
+  cost: number | undefined;
+  description: string | null;
+  collectionInfo: string;
+};
+
+type AvailableReward = RewardO[];
+
+export async function getAvailableRewards(
+  userId: number
+): Promise<AvailableReward> {
   try {
     const userTransactions = await getRewardTransactions(userId);
     const userPoints = userTransactions?.reduce(
-      (total: any, transaction: any) => {
+      (total: number, transaction: { type: string; amount: number }) => {
         return transaction.type.startsWith("earned")
           ? total + transaction.amount
           : total - transaction.amount;
       },
       0
     );
+
     const dbRewards = await db
       .select({
         id: Rewards.id,
@@ -250,7 +290,7 @@ export async function getAvailableRewards(userId: number) {
     console.log("Rewards from database:", dbRewards);
 
     // Combine user points and database rewards
-    const allRewards = [
+    const allRewards: AvailableReward = [
       {
         id: 0, // Use a special ID for user's points
         name: "Your Points",
@@ -269,14 +309,26 @@ export async function getAvailableRewards(userId: number) {
   }
 }
 
-export async function getWasteCollectionTask(limit: number = 20) {
+type WasteCollectionTask = {
+  id: number;
+  location: string;
+  wasteType: string;
+  amount: string;
+  status: string;
+  date: Date | string;
+  collectorId: number | null; // Nullable if collectorId might be missing
+};
+
+export async function getWasteCollectionTask(
+  limit: number = 20
+): Promise<WasteCollectionTask[]> {
   try {
     const tasks = await db
       .select({
         id: Reports.id,
         location: Reports.location,
         wasteType: Reports.wasteType,
-        amoount: Reports.amount,
+        amount: Reports.amount,
         status: Reports.status,
         date: Reports.createdAt,
         collectorId: Reports.collectorId,
@@ -285,15 +337,22 @@ export async function getWasteCollectionTask(limit: number = 20) {
       .limit(limit)
       .execute();
 
-    return tasks.map((task: any) => ({
-      ...task,
-      date: task.date.toISOString.split("T")[0],
-    }));
+    return tasks.map(
+      (task): WasteCollectionTask => ({
+        ...task,
+        date: task.date.toISOString().split("T")[0],
+      })
+    );
   } catch (error) {
     console.error("Error fetching waste collection task", error);
     return [];
   }
 }
+
+type UpdateData = {
+  status: string;
+  collectorId?: number;
+};
 
 export async function updateTaskStatus(
   reportId: number,
@@ -301,7 +360,7 @@ export async function updateTaskStatus(
   collectorId: number
 ) {
   try {
-    const updateData: any = { status: newStatus };
+    const updateData: UpdateData = { status: newStatus };
     if (collectorId !== undefined) {
       updateData.collectorId = collectorId;
     }
@@ -339,6 +398,8 @@ export async function saveReward(userId: number, amount: number) {
       amount,
       "Points earned for collecting waste"
     );
+
+    return reward;
   } catch (error) {
     console.error("Error saving rewards", error);
     throw error;
@@ -348,7 +409,11 @@ export async function saveReward(userId: number, amount: number) {
 export async function saveCollectedWaste(
   reportId: number,
   collectorId: number,
-  verificationResult: any
+  verificationResult?: {
+    wasteType: string;
+    quantity: string;
+    confidence: number;
+  }
 ) {
   try {
     const [collectedWaste] = await db
@@ -368,9 +433,20 @@ export async function saveCollectedWaste(
   }
 }
 
+type Reward = {
+  id: number;
+  userId: number;
+  name: string;
+  collectionInfo: string;
+  points: number;
+  level: number;
+  isAvailable: boolean;
+  updatedAt: Date;
+};
+
 export async function redeemReward(userId: number, rewardId: number) {
   try {
-    const userReward = (await getOrCreateReward(userId)) as any;
+    const userReward = (await getOrCreateReward(userId)) as Reward;
 
     if (rewardId === 0) {
       // Redeem all points

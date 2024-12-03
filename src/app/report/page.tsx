@@ -17,13 +17,20 @@ import {
 } from "@/utils/db/actions";
 import { Button } from "@/components/ui/button";
 
-const geminiAPIKey = process.env.GEMINI_API_KEY as any;
-const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY as any;
+const geminiAPIKey = process.env.GEMINI_API_KEY as string;
+const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY as string;
 
 const libraries: Libraries = ["places"];
 
+interface User {
+  id: number;
+  email: string;
+  name: string;
+}
+
 export default function ReportPage() {
-  const [user, setUser] = useState("") as any;
+  const [user, setUser] = useState<User | null>(null);
+
   // const window.location = usewindow.location();
   const [reports, setReports] = useState<
     Array<{
@@ -40,7 +47,6 @@ export default function ReportPage() {
     type: "",
     amount: "",
   });
-
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -182,7 +188,6 @@ export default function ReportPage() {
     }
 
     setIsSubmitting(true);
-
     try {
       const report = (await createReport(
         user.id,
@@ -224,11 +229,11 @@ export default function ReportPage() {
       const email = localStorage.getItem("userEmail");
 
       if (email) {
-        let user = await getUserByEmail(email);
+        const user = await getUserByEmail(email);
         setUser(user);
 
-        const recentReports = (await getRecentReports()) as any;
-        const formattedReports = recentReports?.map((report: any) => ({
+        const recentReports = await getRecentReports();
+        const formattedReports = recentReports?.map((report) => ({
           ...report,
           createdAt: report.createdAt.toISOString().split("T")[0],
         }));

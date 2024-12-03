@@ -1,8 +1,6 @@
-// @ts-nocheck
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
@@ -13,7 +11,6 @@ import {
   User,
   ChevronDown,
   LogIn,
-  LogOut,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -63,13 +60,20 @@ interface HeaderProps {
   totalEarnings: number;
 }
 
+type CustomNotification = {
+  id: number;
+  createdAt: Date;
+  userId: number;
+  message: string;
+  type: string;
+  isRead: boolean;
+};
 export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   const [provider, setProvider] = useState<IProvider | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<any>(null);
-  const pathname = usePathname();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [balance, setBalance] = useState(0);
 
@@ -80,6 +84,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
       try {
         await web3auth.initModal();
         setProvider(web3auth.provider);
+        console.log(provider);
 
         if (web3auth.connected) {
           setLoggedIn(true);
@@ -111,7 +116,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
         const user = await getUserByEmail(userInfo.email);
         if (user) {
           const unreadNotifications = await getUnreadNotifications(user.id);
-          setNotifications(unreadNotifications);
+          setNotifications(unreadNotifications as CustomNotification[]);
         }
       }
     };
@@ -251,9 +256,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
               <span className="font-bold text-base md:text-lg text-gray-800">
                 Zero2Hero
               </span>
-              <span className="text-[8px] md:text-[10px] text-gray-500 -mt-1">
-                ETHOnline24
-              </span>
             </div>
           </Link>
         </div>
@@ -310,6 +312,9 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
             <Coins className="h-4 w-4 md:h-5 md:w-5 mr-1 text-green-500" />
             <span className="font-semibold text-sm md:text-base text-gray-800">
               {balance.toFixed(2)}
+            </span>
+            <span className="font-semibold text-sm md:text-base text-gray-800">
+              {totalEarnings}
             </span>
           </div>
           {!loggedIn ? (

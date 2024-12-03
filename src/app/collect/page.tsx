@@ -5,8 +5,6 @@ import {
   MapPin,
   CheckCircle,
   Clock,
-  ArrowRight,
-  Camera,
   Upload,
   Loader,
   Calendar,
@@ -25,7 +23,7 @@ import {
 } from "@/utils/db/actions";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const geminiApiKey = process.env.GEMINI_API_KEY as any;
+const geminiApiKey = process.env.GEMINI_API_KEY as string;
 
 type CollectionTask = {
   id: number;
@@ -205,6 +203,7 @@ export default function CollectPage() {
           await saveCollectedWaste(selectedTask.id, user.id, parsedResult);
 
           setReward(earnedReward);
+          console.log(reward);
           toast.success(
             `Verification successful! You earned ${earnedReward} tokens!`,
             {
