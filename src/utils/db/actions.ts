@@ -254,7 +254,7 @@ export async function getRecentReports(limit: number = 10): Promise<Report2[]> {
 type RewardO = {
   id: number;
   name: string;
-  cost: number | undefined;
+  cost: number;
   description: string | null;
   collectionInfo: string;
 };
@@ -294,7 +294,7 @@ export async function getAvailableRewards(
       {
         id: 0, // Use a special ID for user's points
         name: "Your Points",
-        cost: userPoints,
+        cost: userPoints ?? 0,
         description: "Redeem your earned points",
         collectionInfo: "Points earned from reporting and collecting waste",
       },
