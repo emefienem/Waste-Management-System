@@ -423,6 +423,7 @@ export async function saveCollectedWaste(
         collectorId,
         collectionDate: new Date(),
         status: "verified",
+        verificationResult,
       })
       .returning()
       .execute();

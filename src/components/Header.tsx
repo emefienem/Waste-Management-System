@@ -20,7 +20,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Web3Auth } from "@web3auth/modal";
-import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
+import {
+  CHAIN_NAMESPACES,
+  IProvider,
+  UserAuthInfo,
+  UserInfo,
+  WEB3AUTH_NETWORK,
+} from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
@@ -68,11 +74,18 @@ type CustomNotification = {
   type: string;
   isRead: boolean;
 };
+
+interface UserInfoType {
+  email: string;
+  name: string;
+  // Add other properties from userInfo if needed
+}
+
 export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   const [provider, setProvider] = useState<IProvider | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [balance, setBalance] = useState(0);
@@ -89,7 +102,10 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
         if (web3auth.connected) {
           setLoggedIn(true);
           const user = await web3auth.getUserInfo();
-          setUserInfo(user);
+          setUserInfo({
+            name: user.name || "Anonymous User",
+            email: user.email || "",
+          });
           if (user.email) {
             localStorage.setItem("userEmail", user.email);
             try {
@@ -178,7 +194,10 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
       setProvider(web3authProvider);
       setLoggedIn(true);
       const user = await web3auth.getUserInfo();
-      setUserInfo(user);
+      setUserInfo({
+        name: user.name || "Anonymous User",
+        email: user.email || "",
+      });
       if (user.email) {
         localStorage.setItem("userEmail", user.email);
         try {
@@ -212,7 +231,10 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   const getUserInfo = async () => {
     if (web3auth.connected) {
       const user = await web3auth.getUserInfo();
-      setUserInfo(user);
+      setUserInfo({
+        name: user.name || "Anonymous User",
+        email: user.email || "",
+      });
       if (user.email) {
         localStorage.setItem("userEmail", user.email);
         try {

@@ -56,6 +56,7 @@ export const CollectedWastes = pgTable("collected_waste", {
     .notNull(),
   collectionDate: timestamp("collection_date").notNull(),
   status: varchar("status", { length: 255 }).notNull().default("collected"),
+  verificationResult: jsonb("verification_result"),
 });
 
 export const Notifications = pgTable("notifications", {
