@@ -20,13 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Web3Auth } from "@web3auth/modal";
-import {
-  CHAIN_NAMESPACES,
-  IProvider,
-  UserAuthInfo,
-  UserInfo,
-  WEB3AUTH_NETWORK,
-} from "@web3auth/base";
+import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
