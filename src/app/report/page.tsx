@@ -188,22 +188,31 @@ export default function ReportPage() {
     }
 
     setIsSubmitting(true);
+
+    interface Report3 {
+      id: number;
+      location: string;
+      wasteType: string;
+      amount: string;
+      createdAt: Date;
+    }
     try {
-      const report = (await createReport(
+      const report: Report3 | null = await createReport(
         user.id,
         newReport.location,
         newReport.type,
         newReport.amount,
         preview || undefined,
         verificationResult ? JSON.stringify(verificationResult) : undefined
-      )) as any;
+      );
 
       const formattedReport = {
-        id: report.id,
-        location: report.location,
-        wasteType: report.wasteType,
-        amount: report.amount,
-        createdAt: report.createdAt.toISOString().split("T")[0],
+        id: report?.id ?? 0,
+        location: report?.location ?? "Unknown location",
+        wasteType: report?.wasteType ?? "Unknown waste type",
+        amount: report?.amount ?? "0",
+        createdAt:
+          report?.createdAt?.toISOString().split("T")[0] ?? "Unknown date",
       };
 
       setReports([formattedReport, ...reports]);
