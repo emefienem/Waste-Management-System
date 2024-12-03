@@ -1,6 +1,6 @@
 import { db } from "./dbConfig";
 
-import { Notifications, Transactions, Users } from "./schema";
+import { Notifications, Reports, Rewards, Transactions, Users } from "./schema";
 
 import { eq, sql, and, desc } from "drizzle-orm";
 
@@ -96,5 +96,108 @@ export async function markNotificationAsRead(notificationId: number) {
   } catch (error) {
     console.error("Error marking notifications as read", error);
     return null;
+  }
+}
+
+export async function createReport(
+  userId: number,
+  location: string,
+  wasteType: string,
+  amount: string,
+  imageUrl?: string,
+  type?: string,
+  verificationResult?: any
+) {
+  try {
+    const [report] = await db
+      .insert(Reports)
+      .values({
+        userId,
+        location,
+        wasteType,
+        amount,
+        imageUrl,
+        verificationResult,
+        status: "pending",
+      })
+      .returning()
+      .execute();
+
+    const pointsEarned = 10;
+    // update reward points
+    await updateRewardPoints(userId, pointsEarned);
+
+    // create transaction
+    await createTransaction(
+      userId,
+      "earned_report",
+      pointsEarned,
+      "Points earned for reporting waste"
+    );
+
+    // create notification
+    await createNotification(
+      userId,
+      `You've earned ${pointsEarned} points for reporting waste!`,
+      "reward"
+    );
+
+    return report;
+  } catch (error) {
+    console.error("Error creating report:", error);
+    return null;
+  }
+}
+
+export async function updateRewardPoints(userId: number, pointsToAdd: number) {
+  try {
+    const [updatedRewards] = await db
+      .update(Rewards)
+      .set({
+        points: sql`${Rewards.points} + ${pointsToAdd}`,
+      })
+      .where(eq(Rewards.userId, userId))
+      .returning()
+      .execute();
+    return updatedRewards;
+  } catch (error) {
+    console.error("Error updating rewards points", error);
+    return null;
+  }
+}
+
+export async function createTransaction(
+  userId: number,
+  type: "earned_report" | "earned_collect" | "redeemed",
+  amount: number,
+  description: string
+) {
+  try {
+    const [transaction] = await db
+      .insert(Transactions)
+      .values({ userId, type, amount, description })
+      .returning()
+      .execute();
+    return transaction;
+  } catch (error) {
+    console.error("Error creating transactions", error);
+    return null;
+  }
+}
+
+export async function createNotification(
+  userId: number,
+  message: string,
+  type: string
+) {
+  try {
+    const [notification] = await db
+      .insert(Notifications)
+      .values({ userId, message, type })
+      .returning()
+      .execute();
+    return notification;
+  } catch (error) {
+    console.error("Error creating notifications", error);
   }
 }
