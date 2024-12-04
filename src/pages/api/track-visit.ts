@@ -27,8 +27,8 @@ export default async function handler(
     const mailOptions = {
       from: process.env.EMAIL,
       to: process.env.EMAIL,
-      subject: "New Website Visitor",
-      text: `A user just visited your portfolio: ${url} at ${timestamp}`,
+      subject: "WMS Visitor",
+      text: `A user just visited your wms: ${url} at ${timestamp}`,
     };
 
     try {
