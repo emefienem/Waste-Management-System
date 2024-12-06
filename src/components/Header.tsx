@@ -172,9 +172,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   }, [userInfo]);
 
   const login = async () => {
-    if (!loggedIn) {
-      toast.error("Please login to perform any activity");
-    }
     if (!web3auth) {
       console.error("Web3Auth instance is null. Initialization failed.");
       return;
