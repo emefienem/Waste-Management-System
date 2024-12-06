@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
 import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
@@ -252,6 +253,11 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
 
   if (loading) {
     return <div>Loading Web3Auth...</div>;
+  }
+
+  if (!loggedIn) {
+    toast.error("Please login to perform any activity");
+    return;
   }
 
   return (
