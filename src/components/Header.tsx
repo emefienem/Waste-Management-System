@@ -72,7 +72,6 @@ type CustomNotification = {
 interface UserInfoType {
   email: string;
   name: string;
-  // Add other properties from userInfo if needed
 }
 
 export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
@@ -106,7 +105,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
               await createUser(user.email, user.name || "Anonymous User");
             } catch (error) {
               console.error("Error creating user:", error);
-              // Handle the error appropriately, maybe show a message to the user
             }
           }
         }
@@ -152,7 +150,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
 
     fetchUserBalance();
 
-    // Add an event listener for balance updates
     const handleBalanceUpdate = (event: CustomEvent) => {
       setBalance(event.detail);
     };
@@ -198,7 +195,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
           await createUser(user.email, user.name || "Anonymous User");
         } catch (error) {
           console.error("Error creating user:", error);
-          // Handle the error appropriately, maybe show a message to the user
         }
       }
     } catch (error) {
@@ -235,7 +231,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
           await createUser(user.email, user.name || "Anonymous User");
         } catch (error) {
           console.error("Error creating user:", error);
-          // Handle the error appropriately, maybe show a message to the user
         }
       }
     }
@@ -270,7 +265,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
             <Leaf className="h-6 w-6 md:h-8 md:w-8 text-green-500 mr-1 md:mr-2" />
             <div className="flex flex-col">
               <span className="font-bold text-base md:text-lg text-gray-800">
-                Zero2Hero
+                Smart WMS
               </span>
             </div>
           </Link>
