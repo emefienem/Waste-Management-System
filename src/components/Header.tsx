@@ -31,8 +31,7 @@ import {
   getUserBalance,
 } from "@/utils/db/actions";
 
-const clientId =
-  "BNs6-IaLgCV_5D4a79hvjdtxoCTQMwOijt99AcU4QVDPfLrwl4apdtw9AEByFoyVkIZCUmsqLYaDkLYoBFUsMsk";
+const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
