@@ -31,7 +31,8 @@ import {
   getUserBalance,
 } from "@/utils/db/actions";
 
-const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
+const clientId =
+  "BNs6-IaLgCV_5D4a79hvjdtxoCTQMwOijt99AcU4QVDPfLrwl4apdtw9AEByFoyVkIZCUmsqLYaDkLYoBFUsMsk";
 
 // const chainConfig = {
 //   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -47,7 +48,7 @@ const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0xaa36a7",
-  rpcTarget: "https://rpc.ankr.com/eth_sepolia",
+  rpcTarget: "https://ethereum-sepolia-rpc.publicnode.com",
   displayName: "Ethereum Sepolia Testnet",
   blockExplorerUrl: "https://sepolia.etherscan.io",
   ticker: "ETH",
@@ -63,6 +64,7 @@ const web3auth = new Web3Auth({
   clientId,
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   privateKeyProvider,
+  chainConfig,
 });
 
 interface HeaderProps {
