@@ -33,6 +33,17 @@ import {
 
 const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
 
+// const chainConfig = {
+//   chainNamespace: CHAIN_NAMESPACES.EIP155,
+//   chainId: "0xaa36a7",
+//   rpcTarget: "https://rpc.ankr.com/eth_sepolia",
+//   displayName: "Ethereum Sepolia Testnet",
+//   blockExplorerUrl: "https://sepolia.etherscan.io",
+//   ticker: "ETH",
+//   tickerName: "Ethereum",
+//   logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
+// };
+
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0xaa36a7",
@@ -50,7 +61,7 @@ const privateKeyProvider = new EthereumPrivateKeyProvider({
 
 const web3auth = new Web3Auth({
   clientId,
-  web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
+  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   privateKeyProvider,
 });
 
