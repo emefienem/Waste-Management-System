@@ -52,8 +52,8 @@ export default function LeaderboardPage() {
   }, []);
 
   return (
-    <div className="px-3 sm:px-4 md:px-6 py-6 w-full">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full px-4 sm:px-6 py-6 overflow-x-hidden">
+      <div className="max-w-full sm:max-w-4xl mx-auto">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 text-gray-800 text-center">
           Leaderboard
         </h1>
@@ -72,9 +72,8 @@ export default function LeaderboardPage() {
               <Award className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
 
-            {/* Responsive scrollable table */}
             <div className="w-full overflow-x-auto">
-              <table className="min-w-[480px] w-full text-sm">
+              <table className="min-w-[460px] w-full text-sm text-left">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">

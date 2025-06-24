@@ -476,6 +476,7 @@ export default function ReportPage() {
     (ref: google.maps.places.SearchBox) => setSearchBox(ref),
     []
   );
+
   const onPlaceChanged = () => {
     if (searchBox) {
       const places = searchBox.getPlaces();
@@ -606,37 +607,31 @@ export default function ReportPage() {
   }, []);
 
   return (
-    <div className="px-4 py-6 sm:px-6 md:px-8 w-full max-w-6xl mx-auto text-gray-800">
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6">
+    <div className="w-full max-w-[100vw] px-4 py-6 sm:px-6 md:px-8 mx-auto text-gray-800 overflow-x-hidden">
+      <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-gray-800">
         Report Waste
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg mb-12 w-full"
+        className="w-full bg-white p-4 sm:p-6 rounded-2xl shadow-lg mb-12"
       >
-        <div className="mb-8">
-          <label className="block text-lg font-medium mb-2">
+        <div className="mb-6">
+          <label className="block text-base font-medium text-gray-700 mb-2">
             Upload Waste Image
           </label>
-          <div className="w-full border-2 border-dashed border-gray-300 rounded-xl px-4 py-6 text-center hover:border-green-500">
-            <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-            <label
-              htmlFor="waste-image"
-              className="text-green-600 hover:underline cursor-pointer"
-            >
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
+            <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+            <label className="text-green-600 cursor-pointer block">
               Upload a file
+              <input
+                type="file"
+                className="sr-only"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
             </label>
-            <input
-              type="file"
-              id="waste-image"
-              className="hidden"
-              onChange={handleFileChange}
-              accept="image/*"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              PNG, JPG, GIF up to 10MB
-            </p>
+            <p className="text-xs text-gray-500">PNG, JPG, or GIF (max 10MB)</p>
           </div>
         </div>
 
@@ -645,7 +640,7 @@ export default function ReportPage() {
             <img
               src={preview}
               alt="Preview"
-              className="rounded-xl mx-auto max-w-full sm:max-w-sm shadow-md"
+              className="w-full max-w-sm mx-auto rounded-xl shadow-md"
             />
           </div>
         )}
@@ -653,7 +648,7 @@ export default function ReportPage() {
         <Button
           type="button"
           onClick={handleVerify}
-          className="w-full mb-8 bg-blue-600 hover:bg-blue-700 text-white"
+          className="w-full mb-6 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl"
           disabled={!file || verificationStatus === "verifying"}
         >
           {verificationStatus === "verifying" ? (
@@ -667,28 +662,18 @@ export default function ReportPage() {
         </Button>
 
         {verificationStatus === "success" && verificationResult && (
-          <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-8 rounded-xl text-sm">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1" />
-              <div>
-                <p>
-                  <strong>Waste Type:</strong> {verificationResult.wasteType}
-                </p>
-                <p>
-                  <strong>Quantity:</strong> {verificationResult.quantity}
-                </p>
-                <p>
-                  <strong>Confidence:</strong>{" "}
-                  {(verificationResult.confidence * 100).toFixed(1)}%
-                </p>
-              </div>
-            </div>
+          <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-xl text-sm">
+            <CheckCircle className="inline w-5 h-5 text-green-600 mr-2" />
+            <strong>Type:</strong> {verificationResult.wasteType} |{" "}
+            <strong>Qty:</strong> {verificationResult.quantity} |{" "}
+            <strong>Confidence:</strong>{" "}
+            {(verificationResult.confidence * 100).toFixed(1)}%
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Location</label>
+            <label className="block text-sm mb-1 font-medium">Location</label>
             {isLoaded ? (
               <StandaloneSearchBox
                 onLoad={onLoad}
@@ -699,8 +684,8 @@ export default function ReportPage() {
                   name="location"
                   value={newReport.location}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl"
                   required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl"
                 />
               </StandaloneSearchBox>
             ) : (
@@ -709,38 +694,32 @@ export default function ReportPage() {
                 name="location"
                 value={newReport.location}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl"
                 required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl"
               />
             )}
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Waste Type</label>
-            <input
-              type="text"
-              name="type"
-              value={newReport.type}
-              readOnly
-              className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Estimated Amount
-            </label>
-            <input
-              type="text"
-              name="amount"
-              value={newReport.amount}
-              readOnly
-              className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
-            />
-          </div>
+          <input
+            type="text"
+            name="type"
+            readOnly
+            placeholder="Waste Type"
+            value={newReport.type}
+            className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
+          />
+          <input
+            type="text"
+            name="amount"
+            readOnly
+            placeholder="Estimated Amount"
+            value={newReport.amount}
+            className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
+          />
         </div>
 
         <Button
           type="submit"
-          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white"
+          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl flex items-center justify-center"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -754,8 +733,10 @@ export default function ReportPage() {
         </Button>
       </form>
 
-      <h2 className="text-xl sm:text-2xl font-semibold mb-6">Recent Reports</h2>
-      <div className="bg-white rounded-2xl shadow-lg w-full overflow-x-auto">
+      <h2 className="text-2xl sm:text-3xl font-semibold mb-4">
+        Recent Reports
+      </h2>
+      <div className="overflow-x-auto rounded-xl shadow-md">
         <table className="min-w-[600px] w-full text-sm table-auto">
           <thead className="bg-gray-50">
             <tr>
@@ -776,11 +757,13 @@ export default function ReportPage() {
           <tbody className="divide-y divide-gray-200">
             {reports.map((r) => (
               <tr key={r.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2">
-                  <MapPin className="inline h-4 w-4 mr-1 text-green-500" />
+                <td className="px-4 py-2 whitespace-normal break-words">
+                  <MapPin className="inline w-4 h-4 text-green-500 mr-1" />
                   {r.location}
                 </td>
-                <td className="px-4 py-2">{r.wasteType}</td>
+                <td className="px-4 py-2 whitespace-normal break-words">
+                  {r.wasteType}
+                </td>
                 <td className="px-4 py-2">{r.amount}</td>
                 <td className="px-4 py-2">{r.createdAt}</td>
               </tr>
