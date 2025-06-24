@@ -606,64 +606,54 @@ export default function ReportPage() {
   }, []);
 
   return (
-    <div className="px-4 py-6 sm:px-6 md:px-8 max-w-6xl mx-auto text-gray-800 w-full overflow-hidden">
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 text-gray-800">
+    <div className="px-4 py-6 sm:px-6 md:px-8 w-full max-w-6xl mx-auto text-gray-800">
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6">
         Report Waste
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg mb-12"
+        className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg mb-12 w-full"
       >
-        {/* Upload Field */}
         <div className="mb-8">
-          <label
-            htmlFor="waste-image"
-            className="block text-lg font-medium text-gray-700 mb-2"
-          >
+          <label className="block text-lg font-medium mb-2">
             Upload Waste Image
           </label>
-          <div className="mt-1 px-2 sm:px-4 py-4 sm:py-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-green-500 w-full max-w-full">
-            <div className="space-y-2 text-center w-full max-w-xs mx-auto">
-              <Upload className="mx-auto h-10 w-10 text-gray-400" />
-              <div className="text-sm text-gray-600 flex flex-col sm:flex-row justify-center gap-1">
-                <label
-                  htmlFor="waste-image"
-                  className="cursor-pointer text-green-600 hover:text-green-500 font-medium"
-                >
-                  Upload a file
-                  <input
-                    type="file"
-                    id="waste-image"
-                    name="waste-image"
-                    className="sr-only"
-                    onChange={handleFileChange}
-                    accept="image/*"
-                  />
-                </label>
-                <span className="text-gray-500">or drag and drop</span>
-              </div>
-              <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-            </div>
+          <div className="w-full border-2 border-dashed border-gray-300 rounded-xl px-4 py-6 text-center hover:border-green-500">
+            <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+            <label
+              htmlFor="waste-image"
+              className="text-green-600 hover:underline cursor-pointer"
+            >
+              Upload a file
+            </label>
+            <input
+              type="file"
+              id="waste-image"
+              className="hidden"
+              onChange={handleFileChange}
+              accept="image/*"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              PNG, JPG, GIF up to 10MB
+            </p>
           </div>
         </div>
 
-        {/* Preview Image */}
         {preview && (
-          <div className="mt-4 mb-8 flex justify-center">
+          <div className="mb-6">
             <img
               src={preview}
               alt="Preview"
-              className="w-full max-w-[90%] sm:max-w-md md:max-w-lg rounded-xl shadow-md mx-auto"
+              className="rounded-xl mx-auto max-w-full sm:max-w-sm shadow-md"
             />
           </div>
         )}
 
-        {/* Verify Button */}
         <Button
           type="button"
           onClick={handleVerify}
-          className="w-full max-w-full mb-8 bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 text-base sm:text-lg rounded-xl"
+          className="w-full mb-8 bg-blue-600 hover:bg-blue-700 text-white"
           disabled={!file || verificationStatus === "verifying"}
         >
           {verificationStatus === "verifying" ? (
@@ -676,7 +666,6 @@ export default function ReportPage() {
           )}
         </Button>
 
-        {/* Verification Result */}
         {verificationStatus === "success" && verificationResult && (
           <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-8 rounded-xl text-sm">
             <div className="flex items-start gap-3">
@@ -697,12 +686,9 @@ export default function ReportPage() {
           </div>
         )}
 
-        {/* Input Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Location
-            </label>
+            <label className="block text-sm font-medium mb-1">Location</label>
             {isLoaded ? (
               <StandaloneSearchBox
                 onLoad={onLoad}
@@ -713,7 +699,7 @@ export default function ReportPage() {
                   name="location"
                   value={newReport.location}
                   onChange={handleInputChange}
-                  className="w-full max-w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 ring-green-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl"
                   required
                 />
               </StandaloneSearchBox>
@@ -723,25 +709,23 @@ export default function ReportPage() {
                 name="location"
                 value={newReport.location}
                 onChange={handleInputChange}
-                className="w-full max-w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 ring-green-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl"
                 required
               />
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Waste Type
-            </label>
+            <label className="block text-sm font-medium mb-1">Waste Type</label>
             <input
               type="text"
               name="type"
               value={newReport.type}
               readOnly
-              className="w-full max-w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
+              className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1">
               Estimated Amount
             </label>
             <input
@@ -749,15 +733,14 @@ export default function ReportPage() {
               name="amount"
               value={newReport.amount}
               readOnly
-              className="w-full max-w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
+              className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
             />
           </div>
         </div>
 
-        {/* Submit Button */}
         <Button
           type="submit"
-          className="mt-6 w-full max-w-full bg-green-600 hover:bg-green-700 text-white py-2 sm:py-3 text-base sm:text-lg rounded-xl flex items-center justify-center"
+          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -771,44 +754,39 @@ export default function ReportPage() {
         </Button>
       </form>
 
-      {/* Recent Reports Table */}
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 text-gray-800">
-        Recent Reports
-      </h2>
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden w-full">
-        <div className="w-full overflow-x-auto">
-          <table className="w-full min-w-[500px] text-sm table-auto break-words">
-            <thead className="bg-gray-50 sticky top-0">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
-                  Location
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
-                  Type
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
-                  Amount
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
-                  Date
-                </th>
+      <h2 className="text-xl sm:text-2xl font-semibold mb-6">Recent Reports</h2>
+      <div className="bg-white rounded-2xl shadow-lg w-full overflow-x-auto">
+        <table className="min-w-[600px] w-full text-sm table-auto">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium text-gray-500">
+                Location
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500">
+                Type
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500">
+                Amount
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500">
+                Date
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {reports.map((r) => (
+              <tr key={r.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2">
+                  <MapPin className="inline h-4 w-4 mr-1 text-green-500" />
+                  {r.location}
+                </td>
+                <td className="px-4 py-2">{r.wasteType}</td>
+                <td className="px-4 py-2">{r.amount}</td>
+                <td className="px-4 py-2">{r.createdAt}</td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {reports.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">
-                    <MapPin className="inline w-4 h-4 text-green-500 mr-1" />
-                    {r.location}
-                  </td>
-                  <td className="px-4 py-2">{r.wasteType}</td>
-                  <td className="px-4 py-2">{r.amount}</td>
-                  <td className="px-4 py-2">{r.createdAt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

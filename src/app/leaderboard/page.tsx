@@ -52,56 +52,54 @@ export default function LeaderboardPage() {
   }, []);
 
   return (
-    <div className="px-4 py-6 sm:px-6 md:px-8 max-w-4xl mx-auto w-full">
-      <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-gray-800">
-        Leaderboard
-      </h1>
+    <div className="px-3 sm:px-4 md:px-6 py-6 w-full">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 text-gray-800 text-center">
+          Leaderboard
+        </h1>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader className="animate-spin h-8 w-8 text-gray-600" />
-        </div>
-      ) : (
-        <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 sm:p-6">
-            <div className="flex justify-between items-center text-white">
-              <Trophy className="h-8 w-8 sm:h-10 sm:w-10" />
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader className="animate-spin h-8 w-8 text-gray-600" />
+          </div>
+        ) : (
+          <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 px-4 py-4 sm:px-6 sm:py-5 flex justify-between items-center text-white">
+              <Trophy className="h-6 w-6 sm:h-8 sm:w-8" />
               <span className="text-lg sm:text-2xl font-bold">
                 Top Performers
               </span>
-              <Award className="h-8 w-8 sm:h-10 sm:w-10" />
+              <Award className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
-          </div>
 
-          {/* Responsive table container */}
-          <div className="w-full overflow-x-auto">
-            <table className="min-w-[500px] w-full table-auto text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
-                    Rank
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
-                    User
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
-                    Points
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
-                    Level
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rewards.map((reward, index) => (
-                  <tr
-                    key={reward.id}
-                    className={`${
-                      user && user.id === reward.userId ? "bg-indigo-50" : ""
-                    } hover:bg-gray-50 transition-colors duration-150 ease-in-out`}
-                  >
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center">
+            {/* Responsive scrollable table */}
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-[480px] w-full text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
+                      Rank
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
+                      User
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
+                      Points
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">
+                      Level
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rewards.map((reward, index) => (
+                    <tr
+                      key={reward.id}
+                      className={`${
+                        user && user.id === reward.userId ? "bg-indigo-50" : ""
+                      } hover:bg-gray-50 transition-colors`}
+                    >
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {index < 3 ? (
                           <Crown
                             className={`h-5 w-5 ${
@@ -117,40 +115,36 @@ export default function LeaderboardPage() {
                             {index + 1}
                           </span>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-8 w-8">
-                          <User className="h-full w-full rounded-full bg-gray-200 text-gray-500 p-1" />
-                        </div>
-                        <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <User className="h-6 w-6 rounded-full bg-gray-200 text-gray-500 p-1" />
+                          <span className="ml-2 text-sm font-medium text-gray-900">
                             {reward.userName}
-                          </div>
+                          </span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <Award className="h-4 w-4 text-indigo-500 mr-2" />
-                        <div className="text-sm font-semibold text-gray-900">
-                          {reward.points.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <Award className="h-4 w-4 text-indigo-500 mr-2" />
+                          <span className="text-sm font-semibold text-gray-900">
+                            {reward.points.toLocaleString()}
+                          </span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className="px-2 py-1 inline-flex text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                        Level {reward.level}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="px-2 py-1 inline-flex text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                          Level {reward.level}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
