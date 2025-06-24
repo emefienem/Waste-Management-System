@@ -197,7 +197,7 @@ export default function ReportPage() {
   }, []);
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto text-gray-800 w-full">
+    <div className="px-4 py-6 sm:px-6 md:px-8 max-w-6xl mx-auto text-gray-800 w-full">
       <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 text-gray-800">
         Report Waste
       </h1>
@@ -213,7 +213,7 @@ export default function ReportPage() {
           >
             Upload Waste Image
           </label>
-          <div className="mt-1 flex justify-center px-4 py-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-green-500">
+          <div className="mt-1 flex justify-center px-2 sm:px-4 py-4 sm:py-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-green-500 transition-all duration-300">
             <div className="space-y-2 text-center">
               <Upload className="mx-auto h-10 w-10 text-gray-400" />
               <div className="text-sm text-gray-600 flex flex-col sm:flex-row justify-center gap-1">
@@ -369,7 +369,7 @@ export default function ReportPage() {
         Recent Reports
       </h2>
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div className="max-h-96 overflow-x-auto overflow-y-auto">
+        <div className="max-h-96 overflow-x-auto overflow-y-auto w-full">
           <table className="w-full min-w-[600px] text-sm">
             <thead className="bg-gray-50 sticky top-0">
               <tr>
