@@ -34,17 +34,6 @@ import {
 const clientId =
   "BNs6-IaLgCV_5D4a79hvjdtxoCTQMwOijt99AcU4QVDPfLrwl4apdtw9AEByFoyVkIZCUmsqLYaDkLYoBFUsMsk";
 
-// const chainConfig = {
-//   chainNamespace: CHAIN_NAMESPACES.EIP155,
-//   chainId: "0xaa36a7",
-//   rpcTarget: "https://rpc.ankr.com/eth_sepolia",
-//   displayName: "Ethereum Sepolia Testnet",
-//   blockExplorerUrl: "https://sepolia.etherscan.io",
-//   ticker: "ETH",
-//   tickerName: "Ethereum",
-//   logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
-// };
-
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0xaa36a7",
@@ -276,7 +265,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
           <Link href="/" className="flex items-center">
             <Leaf className="h-6 w-6 md:h-8 md:w-8 text-green-500 mr-1 md:mr-2" />
             <div className="flex flex-col">
-              <span className="font-bold text-base md:text-lg text-gray-800">
+              <span className="hidden md:inline font-bold text-base md:text-lg text-gray-800">
                 Smart WMS
               </span>
             </div>

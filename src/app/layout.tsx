@@ -77,7 +77,7 @@ export default function RootLayout({
           />
           <div className="flex flex-1">
             {/* sidebar  */}
-            <Sidebar open={sidebarOpen} />
+            <Sidebar open={sidebarOpen} setSidebarOpen={setSidebarOpen} />
             <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
               {children}
             </main>

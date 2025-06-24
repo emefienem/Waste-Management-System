@@ -13,9 +13,10 @@ const sidebarItems = [
 
 interface SidebarProps {
   open: boolean;
+  setSidebarOpen: (open: boolean) => void;
 }
 
-export default function Sidebar({ open }: SidebarProps) {
+export default function Sidebar({ open, setSidebarOpen }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -27,7 +28,12 @@ export default function Sidebar({ open }: SidebarProps) {
       <nav className="h-full flex flex-col justify-between">
         <div className="px-4 py-6 space-y-8">
           {sidebarItems.map((item) => (
-            <Link key={item.href} href={item.href} passHref>
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setSidebarOpen(false)}
+              passHref
+            >
               <Button
                 variant={pathname === item.href ? "secondary" : "ghost"}
                 className={`w-full justify-start py-3 ${
