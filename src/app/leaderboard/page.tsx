@@ -52,8 +52,8 @@ export default function LeaderboardPage() {
   }, []);
 
   return (
-    <div className="w-full px-4 sm:px-6 py-6 overflow-x-hidden">
-      <div className="max-w-[70vw] mx-auto">
+    <div className="w-full px-4 py-6 overflow-x-hidden">
+      <div className="max-w-[80vw] mx-auto">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 text-gray-800 text-center">
           Leaderboard
         </h1>
