@@ -607,7 +607,7 @@ export default function ReportPage() {
   }, []);
 
   return (
-    <div className="w-full max-w-4xl px-4 py-6 sm:px-6 md:px-8 mx-auto text-gray-800 overflow-x-hidden">
+    <div className="w-full max-w-[80vw] px-4 py-6 sm:px-6 md:px-8 mx-auto text-gray-800 overflow-x-hidden">
       <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-gray-800">
         Report Waste
       </h1>
