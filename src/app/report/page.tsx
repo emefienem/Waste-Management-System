@@ -119,12 +119,18 @@ export default function ReportPage() {
         {
           "wasteType": "type",
           "quantity": "amount in kg or L (0 if none)",
-          "confidence": 0.0 to 0.10
+          "confidence": 0.0 to 1.0
         }
+
+        Definition of waste:
+        - Waste is ONLY an item that is clearly discarded, defective, broken, damaged, spoiled, decayed, or visibly unusable.
+        - An object that is still functional, intact, new, or useful must NOT be classified as waste.
+
         Rules:
-        - If the image does NOT clearly show waste, set "wasteType" to "none", "quantity" to "0", and "confidence" below 0.5.
-        - Do not guess. Be conservative.  
-        `;
+        - If the object in the image is not clearly discarded or defective, return:
+          "wasteType": "none", "quantity": "0", "confidence": below 0.5.
+        - If unsure, choose "none".
+        - Do NOT classify intact electronics, food, or items that look new as waste.`;
       const result = await model.generateContent([prompt, ...imageParts]);
       // const text = (await result.response)
       //   .text()
