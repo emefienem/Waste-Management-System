@@ -13,43 +13,22 @@ type Reward = {
   userName: string | null;
 };
 
+type AggregatedReward = {
+  userId: number;
+  userName: string | null;
+  points: number;
+  level: number;
+};
+
 export default function LeaderboardPage() {
-  const [rewards, setRewards] = useState<Reward[]>([]);
+  // const [rewards, setRewards] = useState<Reward[]>([]);
+  const [rewards, setRewards] = useState<AggregatedReward[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: number;
     email: string;
     name: string;
   } | null>(null);
-
-  // useEffect(() => {
-  //   const fetchRewardsAndUser = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const fetchedRewards = await getAllRewards();
-  //       setRewards(fetchedRewards);
-
-  //       const userEmail = localStorage.getItem("userEmail");
-  //       if (userEmail) {
-  //         const fetchedUser = await getUserByEmail(userEmail);
-  //         if (fetchedUser) {
-  //           setUser(fetchedUser);
-  //         } else {
-  //           toast.error("User not found. Please log in again.");
-  //         }
-  //       } else {
-  //         toast.error("User not logged in. Please log in.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching rewards and user:", error);
-  //       toast.error("Failed to load leaderboard. Please try again.");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchRewardsAndUser();
-  // }, []);
 
   useEffect(() => {
     const fetchRewardsAndUser = async () => {
@@ -59,25 +38,28 @@ export default function LeaderboardPage() {
 
         // ✅ aggregate rewards by userId
         const aggregated = Object.values(
-          fetchedRewards.reduce((acc: any, reward: Reward) => {
-            if (!acc[reward.userId]) {
-              acc[reward.userId] = {
-                userId: reward.userId,
-                userName: reward.userName,
-                points: 0,
-                level: reward.level, // will update below
-              };
-            }
+          fetchedRewards.reduce<Record<number, AggregatedReward>>(
+            (acc, reward) => {
+              if (!acc[reward.userId]) {
+                acc[reward.userId] = {
+                  userId: reward.userId,
+                  userName: reward.userName,
+                  points: 0,
+                  level: reward.level, // start with current
+                };
+              }
 
-            acc[reward.userId].points += reward.points;
-            acc[reward.userId].level = Math.max(
-              acc[reward.userId].level,
-              reward.level
-            );
+              acc[reward.userId].points += reward.points;
+              acc[reward.userId].level = Math.max(
+                acc[reward.userId].level,
+                reward.level
+              );
 
-            return acc;
-          }, {})
-        ) as Reward[];
+              return acc;
+            },
+            {} // ✅ initial value typed
+          )
+        );
 
         setRewards(aggregated);
 
@@ -146,7 +128,7 @@ export default function LeaderboardPage() {
                 <tbody>
                   {rewards.map((reward, index) => (
                     <tr
-                      key={reward.id}
+                      key={index}
                       className={`${
                         user && user.id === reward.userId ? "bg-indigo-50" : ""
                       } hover:bg-gray-50 transition-colors`}
