@@ -4,14 +4,14 @@ import { getAllRewards, getUserByEmail } from "@/utils/db/actions";
 import { Loader, Award, User, Trophy, Crown } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-type Reward = {
-  id: number;
-  userId: number;
-  points: number;
-  level: number;
-  createdAt: Date;
-  userName: string | null;
-};
+// type Reward = {
+//   id: number;
+//   userId: number;
+//   points: number;
+//   level: number;
+//   createdAt: Date;
+//   userName: string | null;
+// };
 
 type AggregatedReward = {
   userId: number;
