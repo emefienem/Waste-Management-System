@@ -320,15 +320,30 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="mr-2 md:mr-4 flex items-center bg-gray-100 rounded-full px-2 md:px-3 py-1">
-            <Coins className="h-4 w-4 md:h-5 md:w-5 mr-1 text-green-500" />
-            <span className="font-semibold text-sm md:text-base text-gray-800">
-              {balance.toFixed(2)}
-            </span>
-            <span className="font-semibold text-sm md:text-base text-gray-800">
-              {/* {totalEarnings} */}
-            </span>
+          <div className="flex items-center space-x-3">
+            {/* Balance */}
+            <div
+              className="flex items-center bg-gray-100 rounded-full px-2 md:px-3 py-1 cursor-default"
+              title="Balance"
+            >
+              <Coins className="h-4 w-4 md:h-5 md:w-5 mr-1 text-green-500" />
+              <span className="font-semibold text-sm md:text-base text-gray-800">
+                {balance.toFixed(2)}
+              </span>
+            </div>
+
+            {/* Total Earnings */}
+            <div
+              className="flex items-center bg-gray-100 rounded-full px-2 md:px-3 py-1 cursor-default"
+              title="Total Earnings"
+            >
+              <Coins className="h-4 w-4 md:h-5 md:w-5 mr-1 text-blue-500" />
+              <span className="font-semibold text-sm md:text-base text-gray-800">
+                {totalEarnings}
+              </span>
+            </div>
           </div>
+
           {!loggedIn ? (
             <Button
               onClick={login}
