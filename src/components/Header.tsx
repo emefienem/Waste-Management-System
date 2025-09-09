@@ -326,7 +326,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
               {balance.toFixed(2)}
             </span>
             <span className="font-semibold text-sm md:text-base text-gray-800">
-              {totalEarnings}
+              {/* {totalEarnings} */}
             </span>
           </div>
           {!loggedIn ? (

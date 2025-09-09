@@ -289,10 +289,10 @@ export async function getAvailableRewards(
 
     console.log("Rewards from database:", dbRewards);
 
-    // Combine user points and database rewards
+    // combines user points and database rewards
     const allRewards: AvailableReward = [
       {
-        id: 0, // Use a special ID for user's points
+        id: 0,
         name: "Your Points",
         cost: userPoints ?? 0,
         description: "Redeem your earned points",
@@ -316,7 +316,7 @@ type WasteCollectionTask = {
   amount: string;
   status: string;
   date: Date | string;
-  collectorId: number | null; // Nullable if collectorId might be missing
+  collectorId: number | null; // would be nullable if collectorId might be missing
 };
 
 export async function getWasteCollectionTask(
@@ -427,6 +427,7 @@ export async function saveCollectedWaste(
       })
       .returning()
       .execute();
+
     return collectedWaste;
   } catch (error) {
     console.error("Error saving collected waste:", error);
@@ -450,7 +451,7 @@ export async function redeemReward(userId: number, rewardId: number) {
     const userReward = (await getOrCreateReward(userId)) as Reward;
 
     if (rewardId === 0) {
-      // Redeem all points
+      // redeem all points
       const [updatedReward] = await db
         .update(Rewards)
         .set({
@@ -461,7 +462,7 @@ export async function redeemReward(userId: number, rewardId: number) {
         .returning()
         .execute();
 
-      // Create a transaction for this redemption
+      // create a transaction for this redemption
       await createTransaction(
         userId,
         "redeemed",
@@ -471,7 +472,7 @@ export async function redeemReward(userId: number, rewardId: number) {
 
       return updatedReward;
     } else {
-      // Existing logic for redeeming specific rewards
+      // existing logic for redeeming specific rewards
       const availableReward = await db
         .select()
         .from(Rewards)
@@ -496,7 +497,7 @@ export async function redeemReward(userId: number, rewardId: number) {
         .returning()
         .execute();
 
-      // Create a transaction for this redemption
+      // create a transaction for this redemption
       await createTransaction(
         userId,
         "redeemed",
