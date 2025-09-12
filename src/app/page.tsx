@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import {
-  getRecentReports,
-  getAllRewards,
-  getWasteCollectionTask,
+  // getRecentReports,
+  // getAllRewards,
+  // getWasteCollectionTask,
   getImpactStats,
   // getCollectedWastes,
 } from "@/utils/db/actions";
