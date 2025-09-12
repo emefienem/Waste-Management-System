@@ -1,21 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  PieChart,
-  BarChart,
-  TrendingUp,
-  Recycle,
-  Trash2,
-  Leaf,
-} from "lucide-react";
+import { TrendingUp, Recycle, Trash2, Leaf } from "lucide-react";
 import { getWasteAnalytics } from "@/utils/db/actions";
 import { initializeWasteCategories } from "@/utils/db/wasteCategories";
+import { Timeframe, WasteAnalyticsResult } from "@/lib/types";
 
 export default function AnalyticsDashboard() {
-  const [data, setData] = useState<any>(null);
-  const [timeframe, setTimeframe] = useState<"week" | "month" | "year">(
-    "month"
-  );
+  const [data, setData] = useState<WasteAnalyticsResult | null>(null);
+  const [timeframe, setTimeframe] = useState<Timeframe>("month");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -116,7 +108,7 @@ export default function AnalyticsDashboard() {
         <h1 className="text-2xl font-bold">Waste Management Analytics</h1>
         <select
           value={timeframe}
-          onChange={(e) => setTimeframe(e.target.value as any)}
+          onChange={(e) => setTimeframe(e.target.value as Timeframe)}
           className="p-2 border rounded"
         >
           <option value="week">Last Week</option>
@@ -174,7 +166,7 @@ export default function AnalyticsDashboard() {
           <h3 className="font-semibold mb-4">Waste Distribution by Type</h3>
           {data.wasteDistribution && data.wasteDistribution.length > 0 ? (
             <div className="space-y-2">
-              {data.wasteDistribution.map((item: any) => (
+              {data.wasteDistribution.map((item) => (
                 <div key={item.category} className="flex justify-between">
                   <span>{item.category || "Unknown"}</span>
                   <span>

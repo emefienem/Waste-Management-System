@@ -13,6 +13,16 @@ import {
 } from "./schema";
 
 import { eq, sql, and, desc } from "drizzle-orm";
+import {
+  Report2,
+  Report3,
+  Reward,
+  RewardO,
+  Timeframe,
+  UpdateData,
+  WasteAnalyticsResult,
+  WasteCollectionTask,
+} from "@/lib/types";
 
 export async function createUser(email: string, name: string) {
   try {
@@ -112,13 +122,13 @@ export async function markNotificationAsRead(notificationId: number) {
   }
 }
 
-interface Report3 {
-  id: number;
-  location: string;
-  wasteType: string;
-  amount: string;
-  createdAt: Date;
-}
+// interface Report3 {
+//   id: number;
+//   location: string;
+//   wasteType: string;
+//   amount: string;
+//   createdAt: Date;
+// }
 
 // Update the createReport function
 export async function createReport(
@@ -227,18 +237,6 @@ export async function createNotification(
   }
 }
 
-interface Report2 {
-  id: number;
-  createdAt: Date; // assuming createdAt is a Date object
-  userId: number;
-  location: string;
-  wasteType: string;
-  amount: string;
-  imageUrl: string | null;
-  verificationResult?: unknown;
-  status: string;
-  collectorId: number | null;
-}
 export async function getRecentReports(limit: number = 10): Promise<Report2[]> {
   try {
     const reports = await db
@@ -255,19 +253,9 @@ export async function getRecentReports(limit: number = 10): Promise<Report2[]> {
   }
 }
 
-type RewardO = {
-  id: number;
-  name: string;
-  cost: number;
-  description: string | null;
-  collectionInfo: string;
-};
+// type AvailableReward = RewardO[];
 
-type AvailableReward = RewardO[];
-
-export async function getAvailableRewards(
-  userId: number
-): Promise<AvailableReward> {
+export async function getAvailableRewards(userId: number): Promise<RewardO[]> {
   try {
     const userTransactions = await getRewardTransactions(userId);
     const userPoints = userTransactions?.reduce(
@@ -294,7 +282,7 @@ export async function getAvailableRewards(
     console.log("Rewards from database:", dbRewards);
 
     // combines user points and database rewards
-    const allRewards: AvailableReward = [
+    const allRewards: RewardO[] = [
       {
         id: 0,
         name: "Your Points",
@@ -313,15 +301,6 @@ export async function getAvailableRewards(
   }
 }
 
-type WasteCollectionTask = {
-  id: number;
-  location: string;
-  wasteType: string;
-  amount: string;
-  status: string;
-  date: Date | string;
-  collectorId: number | null;
-};
 export async function getWasteCollectionTask(
   limit: number = 20
 ): Promise<WasteCollectionTask[]> {
@@ -351,11 +330,6 @@ export async function getWasteCollectionTask(
     return [];
   }
 }
-
-type UpdateData = {
-  status: string;
-  collectorId?: number;
-};
 
 export async function updateTaskStatus(
   reportId: number,
@@ -469,7 +443,7 @@ export async function processCollectedWaste(
 
     if (!report) throw new Error("Report not found");
 
-    let processingDetails: {
+    const processingDetails: {
       processingMethod: string;
       recoveryRate: number | null;
       fertilizerAmount: string | null;
@@ -548,17 +522,6 @@ export async function processCollectedWaste(
     throw error;
   }
 }
-
-type Reward = {
-  id: number;
-  userId: number;
-  name: string;
-  collectionInfo: string;
-  points: number;
-  level: number;
-  isAvailable: boolean;
-  updatedAt: Date;
-};
 
 export async function redeemReward(userId: number, rewardId: number) {
   try {
@@ -679,8 +642,8 @@ export async function getAllRewards() {
 }
 
 export async function getWasteAnalytics(
-  timeframe: "week" | "month" | "year" = "month"
-) {
+  timeframe: Timeframe
+): Promise<WasteAnalyticsResult> {
   try {
     console.log("Getting analytics for timeframe:", timeframe);
     const dateFilter = getDateFilter(timeframe);
