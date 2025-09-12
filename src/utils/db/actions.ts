@@ -14,6 +14,7 @@ import {
 
 import { eq, sql, and, desc } from "drizzle-orm";
 import {
+  ExtractedComponents,
   Report2,
   Report3,
   Reward,
@@ -447,7 +448,7 @@ export async function processCollectedWaste(
       processingMethod: string;
       recoveryRate: number | null;
       fertilizerAmount: string | null;
-      componentsExtracted: any | null;
+      componentsExtracted: ExtractedComponents | null;
     } = {
       processingMethod: "",
       recoveryRate: null,

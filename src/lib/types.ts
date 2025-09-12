@@ -77,3 +77,9 @@ export interface WasteAnalyticsResult {
   timeframe: Timeframe;
   dateFilter: string | Date;
 }
+
+export type ExtractedComponents = {
+  metals: string;
+  plastics: string;
+  circuit_boards: string;
+};
