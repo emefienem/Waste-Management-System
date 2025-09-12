@@ -1,3 +1,5 @@
+import { getDateFilter } from "@/lib/helper";
+import { categorizeWaste } from "../wasteCategorization";
 import { db } from "./dbConfig";
 
 import {
@@ -7,6 +9,7 @@ import {
   Rewards,
   Transactions,
   Users,
+  WasteCategories,
 } from "./schema";
 
 import { eq, sql, and, desc } from "drizzle-orm";
@@ -116,13 +119,14 @@ interface Report3 {
   amount: string;
   createdAt: Date;
 }
+
+// Update the createReport function
 export async function createReport(
   userId: number,
   location: string,
   wasteType: string,
   amount: string,
   imageUrl?: string,
-  type?: string,
   verificationResult?: {
     wasteType: string;
     quantity: string;
@@ -130,6 +134,9 @@ export async function createReport(
   }
 ): Promise<Report3 | null> {
   try {
+    // Categorize the waste
+    const categoryId = categorizeWaste(wasteType);
+
     const [report] = await db
       .insert(Reports)
       .values({
@@ -139,24 +146,21 @@ export async function createReport(
         amount,
         imageUrl,
         verificationResult,
+        categoryId,
         status: "pending",
       })
       .returning()
       .execute();
 
+    // Rest of the function remains the same
     const pointsEarned = 10;
-    // update reward points
     await updateRewardPoints(userId, pointsEarned);
-
-    // create transaction
     await createTransaction(
       userId,
       "earned_report",
       pointsEarned,
       "Points earned for reporting waste"
     );
-
-    // create notification
     await createNotification(
       userId,
       `You've earned ${pointsEarned} points for reporting waste!`,
@@ -316,9 +320,8 @@ type WasteCollectionTask = {
   amount: string;
   status: string;
   date: Date | string;
-  collectorId: number | null; // would be nullable if collectorId might be missing
+  collectorId: number | null;
 };
-
 export async function getWasteCollectionTask(
   limit: number = 20
 ): Promise<WasteCollectionTask[]> {
@@ -406,9 +409,44 @@ export async function saveReward(userId: number, amount: number) {
   }
 }
 
-export async function saveCollectedWaste(
+// export async function saveCollectedWaste(
+//   reportId: number,
+//   collectorId: number,
+//   amount: string | number,
+//   verificationResult?: {
+//     wasteType: string;
+//     quantity: string;
+//     confidence: number;
+//   }
+// ) {
+//   try {
+//     const [collectedWaste] = await db
+//       .insert(CollectedWastes)
+//       .values({
+//         reportId,
+//         collectorId,
+//         collectionDate: new Date(),
+//         status: "collected", //s
+//         amount:
+//           typeof amount === "string"
+//             ? amount.replace(/[^\d.]/g, "") // already string
+//             : String(amount),
+//         verificationResult,
+//       })
+//       .returning()
+//       .execute();
+
+//     return collectedWaste;
+//   } catch (error) {
+//     console.error("Error saving collected waste:", error);
+//     throw error;
+//   }
+// }
+
+export async function processCollectedWaste(
   reportId: number,
   collectorId: number,
+  amount: string | number,
   verificationResult?: {
     wasteType: string;
     quantity: string;
@@ -416,21 +454,97 @@ export async function saveCollectedWaste(
   }
 ) {
   try {
+    const [report] = await db
+      .select({
+        id: Reports.id,
+        wasteType: Reports.wasteType,
+        amount: Reports.amount,
+        categoryId: Reports.categoryId,
+        category: WasteCategories,
+      })
+      .from(Reports)
+      .leftJoin(WasteCategories, eq(Reports.categoryId, WasteCategories.id))
+      .where(eq(Reports.id, reportId))
+      .execute();
+
+    if (!report) throw new Error("Report not found");
+
+    let processingDetails: {
+      processingMethod: string;
+      recoveryRate: number | null;
+      fertilizerAmount: string | null;
+      componentsExtracted: any | null;
+    } = {
+      processingMethod: "",
+      recoveryRate: null,
+      fertilizerAmount: null,
+      componentsExtracted: null,
+    };
+
+    switch (report.categoryId) {
+      case 1: // Organic
+        processingDetails.processingMethod = "Composted";
+        // Estimate fertilizer: ~1kg per 5kg organic waste
+        const amountNum = parseFloat(report.amount) || 0;
+        processingDetails.fertilizerAmount = `${(amountNum / 5).toFixed(
+          1
+        )}kg fertilizer`;
+        break;
+
+      case 2: // Plastic
+      case 4: // Paper
+      case 5: // Glass
+        processingDetails.processingMethod = "Recycled";
+        processingDetails.recoveryRate = report.category
+          ? report.category.recoveryRate
+          : null;
+        break;
+
+      case 3: // E-waste
+        processingDetails.processingMethod = "Recovered";
+        processingDetails.recoveryRate = report.category
+          ? report.category.recoveryRate
+          : null;
+        processingDetails.componentsExtracted = {
+          metals: "Copper, Gold, Silver",
+          plastics: "Various plastic components",
+          circuit_boards: "Extracted and processed",
+        };
+        break;
+
+      case 6: // Mixed waste
+      default:
+        processingDetails.processingMethod = "Disposed (Landfill)";
+        break;
+    }
+
     const [collectedWaste] = await db
       .insert(CollectedWastes)
       .values({
         reportId,
         collectorId,
         collectionDate: new Date(),
-        status: "verified",
+        status: "processed",
         verificationResult,
+        amount:
+          typeof amount === "string"
+            ? amount.replace(/[^\d.]/g, "") // already string
+            : String(amount),
+        ...processingDetails,
       })
       .returning()
       .execute();
 
+    // Update report status
+    await db
+      .update(Reports)
+      .set({ status: "processed" })
+      .where(eq(Reports.id, reportId))
+      .execute();
+
     return collectedWaste;
   } catch (error) {
-    console.error("Error saving collected waste:", error);
+    console.error("Error processing waste:", error);
     throw error;
   }
 }
@@ -562,4 +676,151 @@ export async function getAllRewards() {
     console.error("Error fetching all rewards:", error);
     return [];
   }
+}
+
+export async function getWasteAnalytics(
+  timeframe: "week" | "month" | "year" = "month"
+) {
+  try {
+    console.log("Getting analytics for timeframe:", timeframe);
+    const dateFilter = getDateFilter(timeframe);
+    console.log("Date filter:", dateFilter);
+
+    // Get waste distribution by category with better error handling
+    const wasteDistribution = await db
+      .select({
+        category: WasteCategories.name,
+        count: sql<number>`count(${Reports.id})`,
+        totalAmount: sql<number>`COALESCE(sum(CASE 
+          WHEN ${Reports.amount} ~ '^[0-9]+\.?[0-9]*$' 
+          THEN cast(${Reports.amount} as numeric) 
+          ELSE 0 
+        END), 0)`,
+      })
+      .from(Reports)
+      .leftJoin(WasteCategories, eq(Reports.categoryId, WasteCategories.id))
+      .where(sql`${Reports.createdAt} >= ${dateFilter}`)
+      .groupBy(WasteCategories.name)
+      .execute();
+
+    console.log("Waste distribution raw data:", wasteDistribution);
+
+    // Get processing outcomes with better error handling
+    const processingOutcomes = await db
+      .select({
+        method: CollectedWastes.processingMethod,
+        count: sql<number>`count(${CollectedWastes.id})`,
+      })
+      .from(CollectedWastes)
+      .where(sql`${CollectedWastes.collectionDate} >= ${dateFilter}`)
+      .groupBy(CollectedWastes.processingMethod)
+      .execute();
+
+    console.log("Processing outcomes raw data:", processingOutcomes);
+
+    // If no processed waste, check if there are any reports at all
+    const totalReports = await db
+      .select({
+        count: sql<number>`count(${Reports.id})`,
+      })
+      .from(Reports)
+      .where(sql`${Reports.createdAt} >= ${dateFilter}`)
+      .execute();
+
+    console.log("Total reports in timeframe:", totalReports);
+
+    // Calculate processing outcomes with defaults
+    const totalRecycled = processingOutcomes
+      .filter((p) => p.method === "Recycled")
+      .reduce((sum, item) => sum + Number(item.count || 0), 0);
+
+    const totalRecovered = processingOutcomes
+      .filter((p) => p.method === "Recovered")
+      .reduce((sum, item) => sum + Number(item.count || 0), 0);
+
+    const totalComposted = processingOutcomes
+      .filter((p) => p.method === "Composted")
+      .reduce((sum, item) => sum + Number(item.count || 0), 0);
+
+    const totalDisposed = processingOutcomes
+      .filter((p) => p.method === "Disposed (Landfill)")
+      .reduce((sum, item) => sum + Number(item.count || 0), 0);
+
+    const totalProcessed =
+      totalRecycled + totalRecovered + totalComposted + totalDisposed;
+
+    // Clean up waste distribution data
+    const cleanWasteDistribution = wasteDistribution
+      .filter((item) => item.category !== null && Number(item.count || 0) > 0)
+      .map((item) => ({
+        category: item.category || "Unknown",
+        count: Number(item.count || 0),
+        totalAmount: Number(item.totalAmount || 0),
+      }));
+
+    // If no processed data but there are reports, create mock processing data
+    const processingOutcomesData = {
+      recycled: totalRecycled,
+      recovered: totalRecovered,
+      composted: totalComposted,
+      disposed: totalDisposed,
+      total: totalProcessed,
+    };
+
+    // If no processing data but there are reports, show the reports as pending
+    if (totalProcessed === 0 && totalReports[0]?.count > 0) {
+      processingOutcomesData.total = Number(totalReports[0].count);
+      // You could add a "pending" category here if needed
+    }
+
+    const result = {
+      wasteDistribution: cleanWasteDistribution,
+      processingOutcomes: processingOutcomesData,
+      recoveryRate:
+        totalProcessed > 0
+          ? ((totalRecycled + totalRecovered + totalComposted) /
+              totalProcessed) *
+            100
+          : 0,
+      totalReports: Number(totalReports[0]?.count || 0),
+      timeframe,
+      dateFilter,
+    };
+
+    console.log("Final analytics result:", result);
+    return result;
+  } catch (error) {
+    console.error("Error in getWasteAnalytics:", error);
+    throw new Error(
+      `Failed to fetch waste analytics: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
+  }
+}
+
+export async function getImpactStats(userId?: number) {
+  const [result] = await db
+    .select({
+      wasteCollected: sql<number>`COALESCE(SUM(CAST(${CollectedWastes.amount} AS NUMERIC)), 0)`,
+      reportsSubmitted: sql<number>`COUNT(${Reports.id})`,
+    })
+    .from(CollectedWastes)
+    .leftJoin(Reports, eq(CollectedWastes.reportId, Reports.id))
+    .where(userId ? eq(CollectedWastes.collectorId, userId) : undefined)
+    .execute();
+
+  const rewards = await getAllRewards();
+  const tokensEarned = rewards.reduce(
+    (total, reward) => total + (reward.points || 0),
+    0
+  );
+  const co2Offset = (Number(result.wasteCollected) || 0) * 0.5;
+
+  return {
+    wasteCollected: Number(result.wasteCollected) || 0,
+    reportsSubmitted: Number(result.reportsSubmitted) || 0,
+    tokensEarned,
+    co2Offset,
+  };
 }

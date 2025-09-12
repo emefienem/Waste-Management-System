@@ -127,9 +127,10 @@ export default function ReportPage() {
         - An object that is still functional, intact, new, or useful must NOT be classified as waste.
 
         Rules:
-        - If the object in the image is not clearly discarded or defective, return:
+        - "quantity" must ALWAYS be a number or range (e.g., "5", "10-20", "≈15"), never "unknown".
+        - If the waste is present but hard to estimate exactly, return a reasonable approximate range (e.g., "20-50 kg").
+        - If the object is not clearly waste, return:
           "wasteType": "none", "quantity": "0", "confidence": below 0.5.
-        - If unsure, choose "none".
         - Do NOT classify intact electronics, food, or items that look new as waste.`;
       const result = await model.generateContent([prompt, ...imageParts]);
       // const text = (await result.response)
@@ -168,7 +169,8 @@ export default function ReportPage() {
         newReport.type,
         newReport.amount,
         preview || undefined,
-        verificationResult ? JSON.stringify(verificationResult) : undefined
+        // verificationResult ? JSON.stringify(verificationResult) : undefined
+        verificationResult ?? undefined
       );
       setReports([
         {

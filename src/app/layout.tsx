@@ -6,9 +6,11 @@ import { Toaster } from "react-hot-toast";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { getAvailableRewards, getUserByEmail } from "@/utils/db/actions";
+// import { initializeWasteCategories } from "@/utils/db/wasteCategories";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// initializeWasteCategories();
 export default function RootLayout({
   children,
 }: Readonly<{

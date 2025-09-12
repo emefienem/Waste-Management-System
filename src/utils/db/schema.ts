@@ -7,6 +7,7 @@ import {
   timestamp,
   jsonb,
   boolean,
+  numeric,
 } from "drizzle-orm/pg-core";
 
 export const Users = pgTable("users", {
@@ -29,6 +30,7 @@ export const Reports = pgTable("reports", {
   status: varchar("status", { length: 255 }).notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   collectorId: integer("collector_id").references(() => Users.id),
+  categoryId: integer("category_id").references(() => WasteCategories.id), //s
 });
 
 export const Rewards = pgTable("rewards", {
@@ -57,6 +59,11 @@ export const CollectedWastes = pgTable("collected_waste", {
   collectionDate: timestamp("collection_date").notNull(),
   status: varchar("status", { length: 255 }).notNull().default("collected"),
   verificationResult: jsonb("verification_result"),
+  amount: numeric("amount").notNull().default("0"),
+  processingMethod: varchar("processing_method", { length: 255 }),
+  recoveryRate: integer("recovery_rate"),
+  fertilizerAmount: varchar("fertilizer_amount", { length: 255 }),
+  componentsExtracted: jsonb("components_extracted"), // For e-waste
 });
 
 export const Notifications = pgTable("notifications", {
@@ -79,4 +86,22 @@ export const Transactions = pgTable("transactions", {
   amount: integer("amount").notNull(),
   description: text("description").notNull(),
   date: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const WasteCategories = pgTable("waste_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  processingMethod: varchar("processing_method", { length: 255 }).notNull(),
+  recoveryRate: integer("recovery_rate"), // For recyclables
+  fertilizerEstimate: varchar("fertilizer_estimate", { length: 255 }), // For organic
+});
+
+export const VirtualBins = pgTable("virtual_bins", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id")
+    .references(() => WasteCategories.id)
+    .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
 });
