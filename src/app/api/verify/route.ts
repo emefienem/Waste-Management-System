@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const text = result.response.text();
 
     return NextResponse.json({ result: text });
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Verification failed" }, { status: 500 });
   }
