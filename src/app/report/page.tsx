@@ -17,8 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { parseGeminiJson } from "@/lib/helper";
 
-const geminiAPIKey = process.env.GEMINI_API_KEY as string;
-const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY as string;
+// const geminiAPIKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
+const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
 const libraries: Libraries = ["places"];
 
@@ -66,7 +66,7 @@ export default function ReportPage() {
 
   const onLoad = useCallback(
     (ref: google.maps.places.SearchBox) => setSearchBox(ref),
-    []
+    [],
   );
 
   const onPlaceChanged = () => {
@@ -97,51 +97,36 @@ export default function ReportPage() {
     }
   };
 
-  const readFileAsBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  // const readFileAsBase64 = (file: File): Promise<string> =>
+  //   new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = () => resolve(reader.result as string);
+  //     reader.onerror = reject;
+  //     reader.readAsDataURL(file);
+  //   });
 
   const handleVerify = async () => {
     if (!file) return;
+
     setVerificationStatus("verifying");
+
     try {
-      const genAI = new GoogleGenerativeAI(geminiAPIKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const base64Data = await readFileAsBase64(file);
-      const imageParts = [
-        { inlineData: { data: base64Data.split(",")[1], mimeType: file.type } },
-      ];
-      const prompt = `You are an expert in waste management. Analyze this image and return JSON:
-        {
-          "wasteType": "type",
-          "quantity": "amount in kg or L (0 if none)",
-          "confidence": 0.0 to 1.0
-        }
+      const formData = new FormData();
+      formData.append("file", file);
 
-        Definition of waste:
-        - Waste is ONLY an item that is clearly discarded, defective, broken, damaged, spoiled, decayed, or visibly unusable.
-        - An object that is still functional, intact, new, or useful must NOT be classified as waste.
+      const res = await fetch("/api/verify", {
+        method: "POST",
+        body: formData,
+      });
 
-        Rules:
-        - "quantity" must ALWAYS be a number or range (e.g., "5", "10-20", "≈15"), never "unknown".
-        - If the waste is present but hard to estimate exactly, return a reasonable approximate range (e.g., "20-50 kg").
-        - If the object is not clearly waste, return:
-          "wasteType": "none", "quantity": "0", "confidence": below 0.5.
-        - Do NOT classify intact electronics, food, or items that look new as waste.`;
-      const result = await model.generateContent([prompt, ...imageParts]);
-      // const text = (await result.response)
-      //   .text()
-      //   .replace(/```json|```/g, "")
-      //   .trim();
-      // const parsed = JSON.parse(text);
-      const parsed = parseGeminiJson(result.response.text());
-      if (!parsed) {
-        throw new Error("Invalid AI response format.");
-      }
+      if (!res.ok) throw new Error("Verification failed");
+
+      const data = await res.json();
+
+      const parsed = parseGeminiJson(data.result);
+
+      if (!parsed) throw new Error("Invalid AI response format.");
+
       if (parsed.wasteType && parsed.quantity && parsed.confidence) {
         setVerificationResult(parsed);
         setVerificationStatus("success");
@@ -170,7 +155,7 @@ export default function ReportPage() {
         newReport.amount,
         preview || undefined,
         // verificationResult ? JSON.stringify(verificationResult) : undefined
-        verificationResult ?? undefined
+        verificationResult ?? undefined,
       );
       setReports([
         {
