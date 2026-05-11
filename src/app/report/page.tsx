@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { MapPin, Upload, CheckCircle, Loader } from "lucide-react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
   StandaloneSearchBox,
   useJsApiLoader,
@@ -17,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { parseGeminiJson } from "@/lib/helper";
 
-// const geminiAPIKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
 const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
 const libraries: Libraries = ["places"];
