@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## ♻️ Smart Waste Management System — Smart Waste Reporting & Verification System
 
-## Getting Started
+SWMS is an AI-powered waste reporting platform that allows users to upload images of waste, automatically verify the type and quantity using Google Gemini AI, and submit structured environmental reports with location tracking.
 
-First, run the development server:
+It combines computer vision, AI classification, and geolocation services to improve waste monitoring and environmental reporting.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Features
+- Image-based waste reporting
+- AI-powered waste classification (Google Gemini)
+- Automatic waste type & quantity estimation
+- Location search with Google Places API
+- Report submission & tracking system
+- Recent reports dashboard
+- Secure backend AI processing (no API key exposure)
+- Real-time verification feedback
+ 
+### AI Capabilities
+The system uses Google Gemini (Flash model) to:
+- Detect whether an image contains waste
+- Classify waste type (plastic, organic, electronic, etc.)
+- Estimate quantity (kg/L or range)
+- Return structured JSON responses for processing
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Example AI response:
+`
+{
+  "wasteType": "plastic",
+  "quantity": "10-15 kg",
+  "confidence": 0.92
+} `
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Tech Stack
+# Frontend
+- Next.js (App Router)
+- React + TypeScript
+- Tailwind CSS
+- Google Maps Places API
+  
+# Backend
+- Next.js API Routes
+- Google Gemini AI SDK
+  
+# Database
+PostgreSQL (Drizzle ORM)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Project Structure
+`
+app/
+ └── report/
+     └── page.tsx        # Main UI (upload, verify, submit)
 
-## Learn More
+app/api/
+ └── verify/
+     └── route.ts        # AI backend (Gemini processing)
 
-To learn more about Next.js, take a look at the following resources:
+lib/
+ └── helper.ts           # JSON parsing utilities
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+utils/db/
+ └── actions.ts          # Database operations
+ `
+### How It Works
+- User uploads a waste image
+- Image is sent to backend API (/api/verify)
+- Backend sends image to Gemini AI
+- AI returns structured JSON:
+* waste type
+* quantity
+* confidence score
+- Frontend displays verification result
+- User submits report with location data
+- Report is saved and displayed in dashboard
+  
+### Environment Variables
+Create a .env.local file:
+- NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=your_web3auth_client_id_key
+- DATABASE_URL=your_database_url_key
+- GEMINI_API_KEY=your_google_gemini_key
+- GOOGLE_MAPS_API_KEY=your_google_maps_key
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Example Flow
+- Upload image of waste
+- Click Verify Waste
+- AI returns:
+`Type: plastic | Qty: 5-10 kg | Confidence: 92%`
+- Add location
+- Submit report
+- View in recent reports table
+  
+### Key Design Decisions
+- AI processing moved to backend for security
+- Strict JSON schema enforcement for Gemini responses
+- File upload handled via Base64 encoding
+- Location handled via Google Places Autocomplete
+- Stateless frontend with API-driven architecture
+  
+### Known Limitations
+- AI accuracy depends on image quality
+- Large image uploads may slow verification
+- Requires stable internet for Gemini API calls
+  
+### Future Improvements
+- Admin analytics dashboard
+- Heatmap of waste reports
+- Improved AI classification model (multi-label waste detection)
+- Export reports as CSV/PDF
+- Role-based system (users, recyclers, admins)
+- Mobile app version
