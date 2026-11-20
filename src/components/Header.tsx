@@ -19,9 +19,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Web3Auth } from "@web3auth/modal";
-import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import {
+  Web3Auth,
+  WEB3AUTH_NETWORK,
+} from "@web3auth/modal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   createUser,
@@ -34,26 +35,30 @@ import {
 const clientId =
   "BNs6-IaLgCV_5D4a79hvjdtxoCTQMwOijt99AcU4QVDPfLrwl4apdtw9AEByFoyVkIZCUmsqLYaDkLYoBFUsMsk";
 
-const chainConfig = {
-  chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0xaa36a7",
-  rpcTarget: "https://ethereum-sepolia-rpc.publicnode.com",
-  displayName: "Ethereum Sepolia Testnet",
-  blockExplorerUrl: "https://sepolia.etherscan.io",
-  ticker: "ETH",
-  tickerName: "Ethereum",
-  logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
-};
+// const chainConfig = {
+//   chainNamespace: CHAIN_NAMESPACES.EIP155,
+//   chainId: "0xaa36a7",
+//   rpcTarget: "https://ethereum-sepolia-rpc.publicnode.com",
+//   displayName: "Ethereum Sepolia Testnet",
+//   blockExplorerUrl: "https://sepolia.etherscan.io",
+//   ticker: "ETH",
+//   tickerName: "Ethereum",
+//   logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
+// };
 
-const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
-});
+// const privateKeyProvider = new EthereumPrivateKeyProvider({
+//   config: { chainConfig },
+// });
 
+// const web3auth = new Web3Auth({
+//   clientId,
+//   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+//   privateKeyProvider,
+//   chainConfig,
+// });
 const web3auth = new Web3Auth({
   clientId,
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-  privateKeyProvider,
-  chainConfig,
 });
 
 interface HeaderProps {
@@ -76,7 +81,6 @@ interface UserInfoType {
 }
 
 export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
-  const [provider, setProvider] = useState<IProvider | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
@@ -86,38 +90,43 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
 
   console.log("user info", userInfo);
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await web3auth.initModal();
-        setProvider(web3auth.provider);
-        console.log(provider);
+useEffect(() => {
+  const init = async () => {
+    try {
+      await web3auth.init();
 
-        if (web3auth.connected) {
-          setLoggedIn(true);
-          const user = await web3auth.getUserInfo();
-          setUserInfo({
-            name: user.name || "Anonymous User",
-            email: user.email || "",
-          });
-          if (user.email) {
-            localStorage.setItem("userEmail", user.email);
-            try {
-              await createUser(user.email, user.name || "Anonymous User");
-            } catch (error) {
-              console.error("Error creating user:", error);
-            }
+      if (web3auth.connection) {
+        setLoggedIn(true);
+
+        const user = await web3auth.getUserInfo();
+
+        setUserInfo({
+          name: user.name || "Anonymous User",
+          email: user.email || "",
+        });
+
+        if (user.email) {
+          localStorage.setItem("userEmail", user.email);
+
+          try {
+            await createUser(
+              user.email,
+              user.name || "Anonymous User"
+            );
+          } catch (error) {
+            console.error("Error creating user:", error);
           }
         }
-      } catch (error) {
-        console.error("Error initializing Web3Auth:", error);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error initializing Web3Auth:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    init();
-  }, []);
+  init();
+}, []);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -168,56 +177,55 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
     };
   }, [userInfo]);
 
-  const login = async () => {
-    if (!web3auth) {
-      console.error("Web3Auth instance is null. Initialization failed.");
+const login = async () => {
+  try {
+    console.log("Attempting login...");
+
+    const connection = await web3auth.connect();
+
+    if (!connection) {
+      console.log("Login was cancelled or no connection was established.");
       return;
     }
 
-    // If Web3Auth is not initialized, reinitialize
-    if (!web3auth.provider) {
-      console.log("Web3Auth not initialized. Initializing...");
-      await web3auth.initModal();
-    }
+    setLoggedIn(true);
 
-    try {
-      console.log("Attempting login...");
-      const web3authProvider = await web3auth.connect();
-      setProvider(web3authProvider);
-      setLoggedIn(true);
-      const user = await web3auth.getUserInfo();
-      setUserInfo({
-        name: user.name || "Anonymous User",
-        email: user.email || "",
-      });
-      if (user.email) {
-        localStorage.setItem("userEmail", user.email);
-        try {
-          await createUser(user.email, user.name || "Anonymous User");
-        } catch (error) {
-          console.error("Error creating user:", error);
-        }
+    const user = await web3auth.getUserInfo();
+
+    setUserInfo({
+      name: user.name || "Anonymous User",
+      email: user.email || "",
+    });
+
+    if (user.email) {
+      localStorage.setItem("userEmail", user.email);
+
+      try {
+        await createUser(
+          user.email,
+          user.name || "Anonymous User"
+        );
+      } catch (error) {
+        console.error("Error creating user:", error);
       }
-    } catch (error) {
-      console.error("Error during login:", error);
     }
-  };
+  } catch (error) {
+    console.error("Error during login:", error);
+  }
+};
 
-  const logout = async () => {
-    if (!web3auth) {
-      console.log("web3auth not initialized yet");
-      return;
-    }
-    try {
-      await web3auth.logout();
-      setProvider(null);
-      setLoggedIn(false);
-      setUserInfo(null);
-      localStorage.removeItem("userEmail");
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
-  };
+const logout = async () => {
+  try {
+    await web3auth.logout();
+
+    setLoggedIn(false);
+    setUserInfo(null);
+
+    localStorage.removeItem("userEmail");
+  } catch (error) {
+    console.error("Error during logout:", error);
+  }
+};
 
   const getUserInfo = async () => {
     if (web3auth.connected) {
