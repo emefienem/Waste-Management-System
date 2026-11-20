@@ -90,12 +90,16 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
 
   console.log("user info", userInfo);
 
+const [web3AuthReady, setWeb3AuthReady] = useState(false);
+
 useEffect(() => {
   const init = async () => {
     try {
       await web3auth.init();
 
-      if (web3auth.connection) {
+      setWeb3AuthReady(true);
+
+      if (web3auth.connected) {
         setLoggedIn(true);
 
         const user = await web3auth.getUserInfo();
@@ -108,14 +112,10 @@ useEffect(() => {
         if (user.email) {
           localStorage.setItem("userEmail", user.email);
 
-          try {
-            await createUser(
-              user.email,
-              user.name || "Anonymous User"
-            );
-          } catch (error) {
-            console.error("Error creating user:", error);
-          }
+          await createUser(
+            user.email,
+            user.name || "Anonymous User"
+          );
         }
       }
     } catch (error) {
@@ -178,13 +178,18 @@ useEffect(() => {
   }, [userInfo]);
 
 const login = async () => {
+  if (!web3AuthReady) {
+    console.error("Web3Auth is not initialized yet.");
+    return;
+  }
+
   try {
     console.log("Attempting login...");
 
     const connection = await web3auth.connect();
 
     if (!connection) {
-      console.log("Login was cancelled or no connection was established.");
+      console.log("Login cancelled.");
       return;
     }
 
@@ -200,14 +205,10 @@ const login = async () => {
     if (user.email) {
       localStorage.setItem("userEmail", user.email);
 
-      try {
-        await createUser(
-          user.email,
-          user.name || "Anonymous User"
-        );
-      } catch (error) {
-        console.error("Error creating user:", error);
-      }
+      await createUser(
+        user.email,
+        user.name || "Anonymous User"
+      );
     }
   } catch (error) {
     console.error("Error during login:", error);
@@ -355,6 +356,7 @@ const logout = async () => {
           {!loggedIn ? (
             <Button
               onClick={login}
+              disabled={!web3AuthReady}
               className="bg-green-600 hover:bg-green-700 text-white text-sm md:text-base"
             >
               Login
