@@ -33,7 +33,7 @@ import {
 } from "@/utils/db/actions";
 
 const clientId =
-  "BNs6-IaLgCV_5D4a79hvjdtxoCTQMwOijt99AcU4QVDPfLrwl4apdtw9AEByFoyVkIZCUmsqLYaDkLYoBFUsMsk";
+  "BNW1Jwja2yCl-lvQX_YejXrqCBSWDk4cMoTC7DtQ7ei33KLeDCrcRYgdGvj-gZAUabHHjk4BdvNDZB6_vbbvp_M"
 
 // const chainConfig = {
 //   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -91,18 +91,26 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   console.log("user info", userInfo);
 
 const [web3AuthReady, setWeb3AuthReady] = useState(false);
+const [authInitError, setAuthInitError] = useState<string | null>(null);
 
 useEffect(() => {
+  let mounted = true;
+
   const init = async () => {
     try {
       await web3auth.init();
 
+      if (!mounted) return;
+
       setWeb3AuthReady(true);
+      setAuthInitError(null);
 
       if (web3auth.connected) {
         setLoggedIn(true);
 
         const user = await web3auth.getUserInfo();
+
+        if (!mounted) return;
 
         setUserInfo({
           name: user.name || "Anonymous User",
@@ -120,12 +128,26 @@ useEffect(() => {
       }
     } catch (error) {
       console.error("Error initializing Web3Auth:", error);
+
+      if (mounted) {
+        setAuthInitError(
+          error instanceof Error
+            ? error.message
+            : "Web3Auth initialization failed"
+        );
+      }
     } finally {
-      setLoading(false);
+      if (mounted) {
+        setLoading(false);
+      }
     }
   };
 
   init();
+
+  return () => {
+    mounted = false;
+  };
 }, []);
 
   useEffect(() => {
@@ -359,7 +381,7 @@ const logout = async () => {
               disabled={!web3AuthReady}
               className="bg-green-600 hover:bg-green-700 text-white text-sm md:text-base"
             >
-              Login
+              {web3AuthReady ? "Login" : "Initializing..."}
               <LogIn className="ml-1 md:ml-2 h-4 w-4 md:h-5 md:w-5" />
             </Button>
           ) : (
